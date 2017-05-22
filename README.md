@@ -22,5 +22,3 @@ Suggested workarounds:
 
 [1] https://github.com/ansible/ansible/issues/19278
 
-
-
