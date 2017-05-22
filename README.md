@@ -1,9 +1,10 @@
 # ansible_ovirt_DR
 An ansible script to recover oVirt setup
 
-# Before running this script
-* You must have a running oVirt setup
-* Execute `source hacking/env-setup`
+# Setup
+* The current script supports ansible v2.4
+* The script will be running on the running oVirt engine, You must have a running oVirt setup.
+* Execute `source hacking/env-setup` to upload the ansible.constants module
 * Run the following command for the script to start:
    ./bin/ansible-playbook ~/ansible/playbooks/setup_demo.yml --ask-vault-pass
 
