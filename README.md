@@ -2,8 +2,9 @@
 An ansible script to recover oVirt setup
 
 # Before running this script
-source hacking/env-setup
-Run with the following command:
+* You must have a running oVirt setup
+* Execute `source hacking/env-setup`
+* Run the following command for the script to start:
    ./bin/ansible-playbook ~/ansible/playbooks/setup_demo.yml --ask-vault-pass
 
 # Known issues
