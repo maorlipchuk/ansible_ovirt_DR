@@ -1,0 +1,166 @@
+- name: Setup oVirt environment
+  hosts: localhost
+  connection: local
+  vars_files:
+    - my_vars.yml
+  tasks:
+          - block:
+                  - name: Include oVirt password
+                    no_log: false
+                    include_vars: ovirt_password.yml
+
+                  - name: Obtain SSO token
+                    ovirt_auth:
+                            url: "{{ url }}"
+                            username: "{{ username }}"
+                            password: "{{ password }}"
+                            ca_file: "{{ ca_file }}"
+
+                  # Create datacenters
+                  - ovirt_datacenters:
+                          name: "{{ item.name }}"
+                          local: "{{ item.local }}"
+                          description: "{{ item.desc }}"
+                          compatibility_version: "{{ item.comp_level }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                    with_items:
+                          - "{{ list_DCs }}"
+
+                  - ovirt_clusters:
+                          name: "{{ item.name }}"
+                          data_center: "{{ item.DC_name }}"
+                          cpu_type: "{{ item.cpu_type }}"
+                          compatibility_version: "{{ item.comp_level }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                    with_items:
+                          - "{{ list_clusters }}"
+
+                  - ovirt_hosts:
+                          cluster: "{{ item.cluster }}"
+                          name: "{{ item.name }}"
+                          address: "{{ item.address }}"
+                          password: "{{ item.password }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                    with_items:
+                          - "{{ list_hosts }}"
+
+                  - ovirt_storage_domains:
+                          name: "initial_NFS"
+                          # TODO: Choose active host in the DC
+                          host: "{{ host_name }}"
+                          data_center: "{{ item.DC_name }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                          nfs:
+                                  address: "{{ item.address }}"
+                                  path: "{{ item.path }}"
+                    with_items:
+                          - "{{ initial_NFS }}"
+
+                  - ovirt_storage_domains:
+                          # TODO: Choose active host in the DC
+                          name: "{{ item.name }}"
+                          host: "{{ host_name }}"
+                          data_center: "{{ item.DC_name }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                          nfs:
+                                  address: "{{ item.address }}"
+                                  path: "{{ item.path }}"
+                    with_items:
+                          - "{{ import_NFS }}"
+
+                  - ovirt_hosts:
+                          state: iscsidiscover
+                          # TODO: Choose active host in the DC
+                          name: "{{ host_name }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                          iscsi:
+                                  username: "{{ item.username }}"
+                                  password: "{{ item.password }}"
+                                  address: "{{ item.address }}"
+                    with_items:
+                          - "{{ import_iSCSI }}"
+
+                  - ovirt_hosts:
+                          state: iscsilogin
+                          # TODO: Choose active host in the DC
+                          name: "{{ host_name }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                          iscsi:
+                                  username: "{{ item.username }}"
+                                  password: "{{ item.password }}"
+                                  address: "{{ item.address }}"
+                                  target: "{{ item.target[0] }}"
+                    with_items:
+                          - "{{ import_iSCSI }}"
+
+                  - ovirt_storage_domains:
+                          # TODO: Choose active host in the DC
+                          id: "{{ item.id }}"
+                          import_: true
+                          name: "{{ item.name }}"
+                          host: "{{ host_name }}"
+                          data_center: "{{ item.DC_name }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                          iscsi:
+                                  username: "{{ item.username }}"
+                                  password: "{{ item.password }}"
+                                  address: "{{ item.address }}"
+                                  target: "{{ item.target[0] }}"
+                    with_items:
+                          - "{{ import_iSCSI }}"
+
+                  - ovirt_templates:
+                          state: registered
+                          storage_domain: "{{ item.storage_domain }}"
+                          id: "{{ item.id }}"
+                          cluster: "{{ item.cluster }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                    with_items:
+                          - "{{ register_templates }}"
+
+                  - ovirt_vms:
+                          state: registered
+                          storage_domain: "{{ item.storage_domain }}"
+                          id: "{{ item.id }}"
+                          cluster: "{{ item.cluster }}"
+                          auth:
+                                  username: "{{ username }}"
+                                  password: "{{ password }}"
+                                  url: "{{ url }}"
+                    with_items:
+                          - "{{ register_vms }}"
+
+
+          - always:
+                  - name: Revoke the SSO token
+                    ovirt_auth:
+                            state: absent
+                            ovirt_auth: "{{ ovirt_auth }}"
+

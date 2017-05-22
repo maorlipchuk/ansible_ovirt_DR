@@ -1,0 +1,76 @@
+url: http://localhost:8080/ovirt-engine/api
+username: admin@internal
+ca_file: /home/mlipchuk/ovirt-share/etc/pki/ovirt-engine/ca.pem
+
+list_DCs:
+        - {name: "test",
+           local: "false",
+           desc: "description",
+           comp_level: "4.1"}
+        - {name: "test2",
+           local: "false",
+           desc: "description",
+           comp_level: "4.1"}
+
+list_clusters:
+        - {name: "cluster1",
+           DC_name: "test",
+           cpu_type: "Intel Conroe Family",
+           comp_level: "4.1"}
+        - {name: "cluster2",
+           DC_name: "test2",
+           cpu_type: "Intel Conroe Family",
+           comp_level: "4.1"}
+
+list_hosts:
+        - {name: "pluto-vdsb.eng.lab.tlv.redhat.com",
+           address: "pluto-vdsb.eng.lab.tlv.redhat.com",
+           password: "qum5net",
+           cluster: "cluster1"}
+         
+host_name: "pluto-vdsb.eng.lab.tlv.redhat.com"
+
+initial_NFS:
+        - {address: "10.35.16.43",
+           path: "/export/ansible_initial",
+           DC_name: "test"}
+
+import_NFS:
+        - {address: "10.35.16.43",
+           path: "/export/data_test",
+           DC_name: "test",
+           name: "data"}
+        - {address: "10.35.16.43",
+           path: "/export/data_test6",
+           DC_name: "test",
+           name: "data6"}
+
+import_iSCSI:
+        # TODO: Add support for connect to multiple targets with the same LUN.
+        # Every connect should be done using a different ip
+        - {id: "a0211e52-df7b-4ea4-9d64-daaa8b56ae98",
+           address: "10.35.16.55",
+           target: [ "iqn.2015-07.com.mlipchuk1.redhat:444" ],
+           lun_id: [ "360014050f83eff02b6d4182b4b146689", "360014056a2be431c0fd46c4bdce92b66" ],
+           username: "",
+           password: "",
+           DC_name: "test",
+           name: "iscsi"}
+
+register_templates:
+        - {storage_domain: "data6",
+           id: "cfb8a5b0-987d-4f05-b478-43938980fc10",
+           cluster: "469f9d43-f641-496e-9196-ada09cbe0490"}
+        - {storage_domain: "data",
+           id: "2c29f093-523a-40c6-abbd-02998553cd46",
+           cluster: "469f9d43-f641-496e-9196-ada09cbe0490"}
+        - {storage_domain: "data",
+           id: "8dfaf145-077e-4b1b-a309-5932cf2db7a0",
+           cluster: "469f9d43-f641-496e-9196-ada09cbe0490"}
+
+register_vms:
+        - {storage_domain: "data",
+           id: "86ddd568-8ed9-4fda-829c-d2d338aa08f5",
+           cluster: "469f9d43-f641-496e-9196-ada09cbe0490"}
+
+
