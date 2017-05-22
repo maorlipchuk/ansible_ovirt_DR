@@ -1,6 +1,8 @@
 # ansible_ovirt_DR
 An ansible script to recover oVirt setup
 
+# Before running this script
+source hacking/env-setup
 Run with the following command:
    ./bin/ansible-playbook ~/ansible/playbooks/setup_demo.yml --ask-vault-pass
 
@@ -17,5 +19,6 @@ Suggested workarounds:
   2) Wait for the fix
 
 [1] https://github.com/ansible/ansible/issues/19278
+
 
 
