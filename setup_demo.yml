@@ -5,10 +5,6 @@
     - my_vars.yml
   tasks:
           - block:
-                  - name: Include oVirt password
-                    no_log: false
-                    include_vars: ovirt_password.yml
-
                   - name: Obtain SSO token
                     ovirt_auth:
                             url: "{{ url }}"
@@ -20,36 +16,27 @@
                   - ovirt_datacenters:
                           name: "{{ item.name }}"
                           local: "{{ item.local }}"
+                          auth: "{{ ovirt_auth }}"
                           description: "{{ item.desc }}"
                           compatibility_version: "{{ item.comp_level }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
                     with_items:
                           - "{{ list_DCs }}"
 
                   - ovirt_clusters:
                           name: "{{ item.name }}"
                           data_center: "{{ item.DC_name }}"
+                          auth: "{{ ovirt_auth }}"
                           cpu_type: "{{ item.cpu_type }}"
                           compatibility_version: "{{ item.comp_level }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
                     with_items:
                           - "{{ list_clusters }}"
 
                   - ovirt_hosts:
                           cluster: "{{ item.cluster }}"
                           name: "{{ item.name }}"
+                          auth: "{{ ovirt_auth }}"
                           address: "{{ item.address }}"
                           password: "{{ item.password }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
                     with_items:
                           - "{{ list_hosts }}"
 
@@ -58,10 +45,7 @@
                           # TODO: Choose active host in the DC
                           host: "{{ host_name }}"
                           data_center: "{{ item.DC_name }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
+                          auth: "{{ ovirt_auth }}"
                           nfs:
                                   address: "{{ item.address }}"
                                   path: "{{ item.path }}"
@@ -72,59 +56,49 @@
                           # TODO: Choose active host in the DC
                           name: "{{ item.name }}"
                           host: "{{ host_name }}"
+                          auth: "{{ ovirt_auth }}"
                           data_center: "{{ item.DC_name }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
                           nfs:
                                   address: "{{ item.address }}"
                                   path: "{{ item.path }}"
                     with_items:
                           - "{{ import_NFS }}"
 
-                  - ovirt_hosts:
-                          state: iscsidiscover
-                          # TODO: Choose active host in the DC
-                          name: "{{ host_name }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
-                          iscsi:
-                                  username: "{{ item.username }}"
-                                  password: "{{ item.password }}"
-                                  address: "{{ item.address }}"
-                    with_items:
-                          - "{{ import_iSCSI }}"
+                            #                  - ovirt_hosts:
+                            #                          state: iscsidiscover
+                            #                          # TODO: Choose active host in the DC
+                            #                          name: "{{ host_name }}"
+                            #                          auth: "{{ ovirt_auth }}"
+                            #                          iscsi:
+                            #                                  username: "{{ item.username }}"
+                            #                                  password: "{{ item.password }}"
+                            #                                  address: "{{ item.address }}"
+                            #                    with_items:
+                            #                          - "{{ import_iSCSI }}"
 
                   - ovirt_hosts:
                           state: iscsilogin
                           # TODO: Choose active host in the DC
                           name: "{{ host_name }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
+                          auth: "{{ ovirt_auth }}"
                           iscsi:
-                                  username: "{{ item.username }}"
-                                  password: "{{ item.password }}"
-                                  address: "{{ item.address }}"
-                                  target: "{{ item.target[0] }}"
-                    with_items:
+                                  username: "{{ item.0.username }}"
+                                  password: "{{ item.0.password }}"
+                                  address: "{{ item.0.address }}"
+                                  target: "{{ item.1 }}"
+                    with_subelements:
                           - "{{ import_iSCSI }}"
+                          - target
 
                   - ovirt_storage_domains:
-                          # TODO: Choose active host in the DC
+                          # TODO: Choose predefine host in the block DC
                           id: "{{ item.id }}"
                           import_: true
                           name: "{{ item.name }}"
                           host: "{{ host_name }}"
+                          auth: "{{ ovirt_auth }}"
                           data_center: "{{ item.DC_name }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
+                          # TODO: For import block there is no need for the iscsi parameters
                           iscsi:
                                   username: "{{ item.username }}"
                                   password: "{{ item.password }}"
@@ -136,12 +110,10 @@
                   - ovirt_templates:
                           state: registered
                           storage_domain: "{{ item.storage_domain }}"
+                          auth: "{{ ovirt_auth }}"
                           id: "{{ item.id }}"
                           cluster: "{{ item.cluster }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
+                          # TODO: ignore_errors: yes
                     with_items:
                           - "{{ register_templates }}"
 
@@ -149,11 +121,9 @@
                           state: registered
                           storage_domain: "{{ item.storage_domain }}"
                           id: "{{ item.id }}"
+                          auth: "{{ ovirt_auth }}"
                           cluster: "{{ item.cluster }}"
-                          auth:
-                                  username: "{{ username }}"
-                                  password: "{{ password }}"
-                                  url: "{{ url }}"
+                          # TODO: ignore_errors: yes
                     with_items:
                           - "{{ register_vms }}"
 

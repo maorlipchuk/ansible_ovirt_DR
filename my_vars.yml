@@ -23,12 +23,12 @@ list_clusters:
            comp_level: "4.1"}
 
 list_hosts:
-        - {name: "pluto-vdsb.eng.lab.tlv.redhat.com",
-           address: "pluto-vdsb.eng.lab.tlv.redhat.com",
+        - {name: "10.35.0.185",
+           address: "10.35.0.185",
            password: "qum5net",
            cluster: "cluster1"}
          
-host_name: "pluto-vdsb.eng.lab.tlv.redhat.com"
+host_name: "10.35.0.185"
 
 initial_NFS:
         - {address: "10.35.16.43",
@@ -37,40 +37,50 @@ initial_NFS:
 
 import_NFS:
         - {address: "10.35.16.43",
-           path: "/export/data_test",
-           DC_name: "test",
-           name: "data"}
-        - {address: "10.35.16.43",
            path: "/export/data_test6",
            DC_name: "test",
            name: "data6"}
+        - {address: "10.35.16.43",
+           path: "/export/data_test7",
+           DC_name: "test",
+           name: "data7"}
+        - {address: "10.35.16.43",
+           path: "/export/data_test8",
+           DC_name: "test",
+           name: "data8"}
+
+register_templates:
+        - {storage_domain: "data6",
+           id: "a2ef57df-43f3-4d7b-97d5-cbae0aa56807",
+           cluster: "cluster1"}
+           # TODO: Need to handle missing entities.
+           #        - {storage_domain: "data7",
+           #           id: "20c99acf-0b80-487b-90b5-13f7ff71ee2d",
+           #           cluster: "cluster1"}
+        - {storage_domain: "data8",
+           id: "8d2580bc-7535-4704-a4cb-dd3bc1dfebf5",
+           cluster: "cluster1"}
+        ## Add test for Template/VMs with no disks
+
+register_vms:
+        - {storage_domain: "data7",
+           id: "f8391c92-5b2d-4968-8d43-50b1808c77a2",
+           cluster: "cluster1"}
+        - {storage_domain: "data6",
+           id: "2926c306-acdb-4c2c-906a-9f726a205dac",
+           cluster: "cluster1"}
+        - {storage_domain: "data8",
+           id: "84b354ca-c8d5-48f3-8c9c-cf31a295fac6",
+           cluster: "cluster1"}
 
 import_iSCSI:
         # TODO: Add support for connect to multiple targets with the same LUN.
         # Every connect should be done using a different ip
-        - {id: "a0211e52-df7b-4ea4-9d64-daaa8b56ae98",
+        - {id: "e796dbf3-0b60-4087-ac39-b67e05f062ee",
            address: "10.35.16.55",
-           target: [ "iqn.2015-07.com.mlipchuk1.redhat:444" ],
-           lun_id: [ "360014050f83eff02b6d4182b4b146689", "360014056a2be431c0fd46c4bdce92b66" ],
+           target: ["iqn.2015-07.com.mlipchuk2.redhat:444", "iqn.2015-07.com.mlipchuk3.redhat:444"],
            username: "",
            password: "",
            DC_name: "test",
            name: "iscsi"}
-
-register_templates:
-        - {storage_domain: "data6",
-           id: "cfb8a5b0-987d-4f05-b478-43938980fc10",
-           cluster: "469f9d43-f641-496e-9196-ada09cbe0490"}
-        - {storage_domain: "data",
-           id: "2c29f093-523a-40c6-abbd-02998553cd46",
-           cluster: "469f9d43-f641-496e-9196-ada09cbe0490"}
-        - {storage_domain: "data",
-           id: "8dfaf145-077e-4b1b-a309-5932cf2db7a0",
-           cluster: "469f9d43-f641-496e-9196-ada09cbe0490"}
-
-register_vms:
-        - {storage_domain: "data",
-           id: "86ddd568-8ed9-4fda-829c-d2d338aa08f5",
-           cluster: "469f9d43-f641-496e-9196-ada09cbe0490"}
-
 
